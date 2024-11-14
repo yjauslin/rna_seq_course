@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#SBATCH --mail-type=fail
+#SBATCH --job-name="sorting"
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=4
+#SBATCH --time=02:00:00
+#SBATCH --mem=25G
+#SBATCH --partition=pibu_el8
+
+INPUT_DIR=/data/users/${USER}/rna_seq/fastqc
+HISAT2_DIR=/containers/apptainer/hisat2_samtools_408dfd02f175cd88.sif
+
+apptainer exec --bind $INPUT_DIR $HISAT2_DIR samtools sort -m 7G -@ 1 -o *sorted.bam -T temp <.bam>
