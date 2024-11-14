@@ -1,0 +1,22 @@
+#!/bin/bash
+
+#SBATCH --mail-type=fail
+#SBATCH --job-name="indexing"
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=04:00:00
+#SBATCH --mem=8G
+#SBATCH --partition=pibu_el8
+
+INPUT_DIR=/data/users/${USER}/rna_seq/fastqc
+HISAT2_DIR=/containers/apptainer/hisat2_samtools_408dfd02f175cd88.sif
+
+apptainer exec --bind $INPUT_DIR $HISAT2_DIR hisat2-build Mus_musculus.GRCm39.dna.primary_assembly.fa.gz SRR*_*_fasta
+
+apptainer exec --bind $INPUT_DIR $HISAT2_DIR hisat2 -x <> -1 <> -2 <> -S <> -p 1
+
+apptainer exec --bind $INPUT_DIR $HISAT2_DIR samtools view -hbs <.sam> > <.bam>
+
+apptainer exec --bind $INPUT_DIR $HISAT2_DIR samtools sort -m 7G -@ 1 -o *sorted.bam -T temp <.bam>
+
+apptainer exec --bind $INPUT_DIR $HISAT2_DIR samtools index *sorted.bam
