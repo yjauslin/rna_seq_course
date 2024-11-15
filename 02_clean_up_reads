@@ -1,34 +1,25 @@
 #!/bin/bash
 
 #SBATCH --mail-type=fail
-#SBATCH --job-name="clean_up_reads"
+#SBATCH --job-name="fastp"
 #SBATCH --nodes=1
-#SBATCH --cpus-per-task=4
-#SBATCH --time=2:00:00
+#SBATCH --cpus-per-task=8
+#SBATCH --time=1:00:00
 #SBATCH --mem=25G
 #SBATCH --partition=pibu_el8
 
-#save read directory and intended output directory as variables
+#save read- , intended output- and container directory as variables
 READS_DIR=/data/courses/rnaseq_course/toxoplasma_de/reads
-OUT_DIR=/data/users/${USER}/rna_seq/cleaned_fastqc
 
-#source trimmomatic, source stolen from bioinformatic course SBC07107
-#source /data/users/lfalquet/SBC07107_23/scripts/module.sh
-#possibly 
-module load trimmomatic/trimmomatic-0.35.jar
+CONTAINER=/containers/apptainer/fastp_0.23.2--h5f740d0_3.sif
+
+OUT_DIR=/data/users/${USER}/rna_seq/cleaned_fastp
+
+FILE_NUMBER=$1
 
 #move to project directory and create output directory
 cd /data/users/${USER}/rna_seq
 mkdir ${OUT_DIR}
 
-#remove overrepresented sequences and trim reads
-trimmomatic SE -phred33 -threads 4 ${READS_DIR}SRR*.fastq.gz ${OUT_DIR}/SRR*_cleaned.fastq.gz ILLUMINACLIP:TruSeq3-SE:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:50
-
-#execute fastqc for the cleaned reads 
-apptainer exec --bind ${OUT_DIR} ${CONTAINER} \
-fastqc \
---outdir ${OUT_DIR} \
-"$OUT_DIR"/SRR*_cleaned.fastq.gz
-
-#summarise results with multiqc
-#singularity exec --bind . /software/singularity/containers/MultiQC-1.11-1.ubuntu20.sif multiqc .
+#cleaning up using fastp
+apptainer exec --bind ${READS_DIR} ${CONTAINER} fastp -i ${READS_DIR}/SRR${FILE_NUMBER}_1.fastq.gz -I ${READS_DIR}/SRR${FILE_NUMBER}_2.fastq.gz  -o ${OUT_DIR}/SRR${FILE_NUMBER}_1_cleaned.fastq.gz -O ${OUT_DIR}/SRR${FILE_NUMBER}_2_cleaned.fastq.gz
