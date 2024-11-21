@@ -32,5 +32,5 @@ for file in /data/users/${USER}/rna_seq/fastqc/SRR*_*; do
 done
 
 for number in "${numbers[@]}"; do
-apptainer exec --bind $INPUT_DIR $HISAT2_DIR samtools index -o ${OUTPUT_DIR}/${number}_indexed.bam ${INPUT_DIR}/${number}_sorted.bam
+apptainer exec --bind $INPUT_DIR $HISAT2_DIR samtools index -o ${OUTPUT_DIR}/${number}_indexed.bam.bai ${INPUT_DIR}/${number}_sorted.bam
 done
