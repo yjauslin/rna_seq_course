@@ -17,6 +17,6 @@ gunzip /data/users/${USER}/rna_seq/fastqc/Mus_musculus.GRCm39.113.gtf.gz
 #give permission to the input files
 chmod +wrx $INPUT_DIR/*.bam
 
-apptainer exec --bind $INPUT_DIR $CONTAINER_DIR featureCounts -s 2 -a /data/users/${USER}/rna_seq/fastqc/Mus_musculus.GRCm39.113.gtf -o counts.txt $INPUT_DIR/*.bam
+apptainer exec --bind $INPUT_DIR $CONTAINER_DIR featureCounts -p --countReadPairs -s 2 -a /data/users/${USER}/rna_seq/fastqc/Mus_musculus.GRCm39.113.gtf -o counts.txt $INPUT_DIR/*.bam
 
 gzip /data/users/${USER}/rna_seq/fastqc/Mus_musculus.GRCm39.113.gtf
