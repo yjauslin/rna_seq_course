@@ -21,5 +21,7 @@ Description of all the files:
 
 10_run_featureCounts: Runs the sorted bam-files through featureCounts in order to analyse differential gene-expression
 
+11_edit_fcounts_output: Edits the output of featureCounts so it can be used in R for further analysis.
+
 Contact: yannick.jauslin@students.unibe.ch
 
