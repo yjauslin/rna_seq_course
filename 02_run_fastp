@@ -22,4 +22,4 @@ cd /data/users/${USER}/rna_seq
 mkdir ${OUT_DIR}
 
 #cleaning up using fastp
-apptainer exec --bind ${READS_DIR} ${CONTAINER} fastp -i ${READS_DIR}/SRR${FILE_NUMBER}_1.fastq.gz -I ${READS_DIR}/SRR${FILE_NUMBER}_2.fastq.gz  -o ${OUT_DIR}/SRR${FILE_NUMBER}_1_cleaned.fastq.gz -O ${OUT_DIR}/SRR${FILE_NUMBER}_2_cleaned.fastq.gz
+apptainer exec --bind ${READS_DIR} ${CONTAINER} fastp -D -p -g -x -i ${READS_DIR}/SRR${FILE_NUMBER}_1.fastq.gz -I ${READS_DIR}/SRR${FILE_NUMBER}_2.fastq.gz  -o ${OUT_DIR}/SRR${FILE_NUMBER}_1_cleaned.fastq.gz -O ${OUT_DIR}/SRR${FILE_NUMBER}_2_cleaned.fastq.gz
