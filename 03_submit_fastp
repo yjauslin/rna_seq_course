@@ -38,5 +38,5 @@ done
 #looping over all files in 
 for number in "${numbers[@]}"; do
 #cleaning up using fastp
-sbatch 02_clean_up_reads $number
+sbatch 02_run_fastp $number
 done
