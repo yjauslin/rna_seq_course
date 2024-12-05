@@ -25,3 +25,9 @@ fastqc \
 --outdir /data/users/${USER}/rna_seq/fastqc \
 "$READS_DIR"/SRR*.fastq.gz
 
+#add module to run multiqc
+module add MultiQC/1.11-foss-2021a
+
+#run multiqc
+multiqc $PROJECT_DIR/fastqc -o $PROJECT_DIR/fastqc
+
