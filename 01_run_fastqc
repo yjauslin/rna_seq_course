@@ -1,0 +1,33 @@
+#!/bin/bash
+
+#SBATCH --mail-type=fail
+#SBATCH --job-name="fast_qc"
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=8
+#SBATCH --time=02:00:00
+#SBATCH --mem=8G
+#SBATCH --partition=pibu_el8
+
+READS_DIR=/data/courses/rnaseq_course/toxoplasma_de/reads
+CONTAINER=/containers/apptainer/fastqc-0.12.1.sif
+
+#create project directory
+cd /data/users/${USER}
+mkdir rna_seq
+
+#go to project directory and create output directory for fastqc
+cd /data/users/${USER}/rna_seq
+mkdir fastqc
+
+#open container and execute fastqc for all the read files, add files to output directory
+apptainer exec --bind ${READS_DIR} ${CONTAINER} \
+fastqc \
+--outdir /data/users/${USER}/rna_seq/fastqc \
+"$READS_DIR"/SRR*.fastq.gz
+
+#add module to run multiqc
+module add MultiQC/1.11-foss-2021a
+
+#run multiqc
+multiqc $PROJECT_DIR/fastqc -o $PROJECT_DIR/fastqc
+
