@@ -1,0 +1,36 @@
+#!/bin/bash
+
+#SBATCH --mail-type=fail
+#SBATCH --job-name="viewing"
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=02:00:00
+#SBATCH --mem=4G
+#SBATCH --partition=pibu_el8
+
+INPUT_DIR=/data/users/${USER}/rna_seq/sam_files
+OUTPUT_DIR=/data/users/${USER}/rna_seq/bam_files
+
+cd /data/users/${USER}/rna_seq
+mkdir $OUTPUT_DIR
+
+numbers=()
+
+# Loop through the files and extract the numbers
+for file in /data/users/${USER}/rna_seq/fastqc/SRR*_*; do
+  # Extract the filename without the path
+  filename=$(basename "$file")
+  # Extract the number using bash string manipulation
+  number=${filename#SRR}   # Remove 'SRR' prefix
+  number=${number%%_*}     # Remove everything after the first '_'
+
+  # Check if the number is already in the unique_numbers array
+  if [[ ! " ${numbers[@]} " =~ " ${number} " ]]; then
+    numbers+=("$number")  # Add only if it's not already in the array
+  fi
+done
+
+
+for number in "${numbers[@]}"; do
+sbatch 08a_convert_sam_to_bam ${number}.sam ${number}.bam
+done

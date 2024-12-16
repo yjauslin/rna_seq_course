@@ -1,0 +1,25 @@
+#!/bin/bash
+
+#SBATCH --mail-type=fail
+#SBATCH --job-name="mapping"
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=4
+#SBATCH --time=12:00:00
+#SBATCH --mem=8G
+#SBATCH --partition=pibu_el8
+
+INPUT_DIR=/data/users/${USER}/rna_seq/cleaned_fastp
+HISAT2_DIR=/containers/apptainer/hisat2_samtools_408dfd02f175cd88.sif
+REF_GENOME=/data/users/${USER}/rna_seq/fastqc
+OUT_DIR=/data/users/${USER}/rna_seq/sam_files
+
+INPUT_FILE1=$1
+INPUT_FILE2=$2
+OUTPUT_FILE=$3
+
+
+cd /data/users/${USER}/rna_seq
+mkdir ${OUT_DIR}
+
+
+apptainer exec --bind $INPUT_DIR $HISAT2_DIR hisat2 --rna-strandness RF -x ${REF_GENOME}/ref_genome_index -1 ${INPUT_DIR}/$INPUT_FILE1 -2 ${INPUT_DIR}/$INPUT_FILE2 -S ${OUT_DIR}/$OUTPUT_FILE

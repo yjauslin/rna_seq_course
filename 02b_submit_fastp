@@ -1,0 +1,42 @@
+#!/bin/bash
+
+#SBATCH --mail-type=fail
+#SBATCH --job-name="fastp"
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=8
+#SBATCH --time=2:00:00
+#SBATCH --mem=25G
+#SBATCH --partition=pibu_el8
+
+#save read- , intended output- and container directory as variables
+READS_DIR=/data/courses/rnaseq_course/toxoplasma_de/reads
+
+CONTAINER=/containers/apptainer/fastp_0.23.2--h5f740d0_3.sif
+
+OUT_DIR=/data/users/${USER}/rna_seq/cleaned_fastp
+
+#move to project directory and create output directory
+cd /data/users/${USER}/rna_seq
+mkdir ${OUT_DIR}
+
+numbers=()
+
+# Loop through the files and extract the numbers
+for file in ${READS_DIR}/SRR*_*; do
+  # Extract the filename without the path
+  filename=$(basename "$file")
+  # Extract the number using bash string manipulation
+  number=${filename#SRR}   # Remove 'SRR' prefix
+  number=${number%%_*}     # Remove everything after the first '_'
+
+  # Check if the number is already in the unique_numbers array
+  if [[ ! " ${numbers[@]} " =~ " ${number} " ]]; then
+    numbers+=("$number")  # Add only if it's not already in the array
+  fi
+done
+
+#looping over all files in 
+for number in "${numbers[@]}"; do
+#cleaning up using fastp
+sbatch 02a_run_fastp $number
+done
