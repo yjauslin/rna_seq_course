@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#SBATCH --mail-type=fail
+#SBATCH --job-name="multiqc"
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=02:00:00
+#SBATCH --mem=1G
+#SBATCH --partition=pibu_el8
+
+PROJECT_DIR=/data/users/${USER}/rna_seq
+
+module add MultiQC/1.11-foss-2021a
+
+cd $PROJECT_DIR
+
+#run multiqc
+multiqc $PROJECT_DIR -o $PROJECT_DIR -f/--force

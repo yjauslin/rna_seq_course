@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#SBATCH --mail-type=fail
+#SBATCH --job-name="get_ref_genome"
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:10:00
+#SBATCH --mem=1G
+#SBATCH --partition=pibu_el8
+
+#move to results directory of step 1
+cd /data/users/${USER}/rna_seq/fastqc
+
+#get mouse ref-genome
+wget https://ftp.ensembl.org/pub/release-113/fasta/mus_musculus/dna/Mus_musculus.GRCm39.dna.primary_assembly.fa.gz
+
+#get annotations
+wget https://ftp.ensembl.org/pub/release-113/gtf/mus_musculus/Mus_musculus.GRCm39.113.gtf.gz

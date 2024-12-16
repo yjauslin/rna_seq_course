@@ -1,0 +1,29 @@
+#!/bin/bash
+
+#SBATCH --mail-type=fail
+#SBATCH --job-name="fast_qc"
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=8
+#SBATCH --time=02:00:00
+#SBATCH --mem=8G
+#SBATCH --partition=pibu_el8
+
+READS_DIR=/data/users/${USER}/rna_seq/cleaned_fastp
+CONTAINER=/containers/apptainer/fastqc-0.12.1.sif
+PROJECT_DIR=/data/users/${USER}/rna_seq
+
+#go to project directory and create output directory for fastqc of cleaned reads
+cd $PROJECT_DIR
+mkdir cleaned_fastqc
+
+#open container and execute fastqc for all the read files, add files to output directory
+apptainer exec --bind ${READS_DIR} ${CONTAINER} \
+fastqc \
+--outdir /data/users/${USER}/rna_seq/cleaned_fastqc \
+"$READS_DIR"/SRR*_*_cleaned.fastq.gz
+
+#add module to run multiqc
+module add MultiQC/1.11-foss-2021a
+
+#run multiqc
+multiqc $PROJECT_DIR/cleaned_fastqc -o $PROJECT_DIR/cleaned_fastqc
