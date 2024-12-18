@@ -8,11 +8,14 @@
 #SBATCH --mem=35G
 #SBATCH --partition=pibu_el8
 
+#save output directoryas variable
 OUTPUT_DIR=/data/users/${USER}/rna_seq/sorted_bam
 
+#move to project directory and create output directory
 cd /data/users/${USER}/rna_seq
 mkdir $OUTPUT_DIR
 
+#initialize array to store file numbers
 numbers=()
 
 # Loop through the files and extract the numbers
@@ -30,5 +33,6 @@ for file in /data/users/${USER}/rna_seq/fastqc/SRR*_*; do
 done
 
 for number in "${numbers[@]}"; do
+#submit every number in numbers array to sorting
 sbatch 09a_run_samtools_sort ${number}.bam ${number}_sorted.bam
 done
