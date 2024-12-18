@@ -8,18 +8,21 @@
 #SBATCH --mem=8G
 #SBATCH --partition=pibu_el8
 
+#save important directories as variables
 INPUT_DIR=/data/users/${USER}/rna_seq/cleaned_fastp
 HISAT2_DIR=/containers/apptainer/hisat2_samtools_408dfd02f175cd88.sif
 REF_GENOME=/data/users/${USER}/rna_seq/fastqc
 OUT_DIR=/data/users/${USER}/rna_seq/sam_files
 
+#read-in names of the input files as well as name of the output file from the command line arguments
 INPUT_FILE1=$1
 INPUT_FILE2=$2
 OUTPUT_FILE=$3
 
 
+#move to project directory and create output directory
 cd /data/users/${USER}/rna_seq
 mkdir ${OUT_DIR}
 
-
+#map the reads to the reference genome
 apptainer exec --bind $INPUT_DIR $HISAT2_DIR hisat2 --rna-strandness RF -x ${REF_GENOME}/ref_genome_index -1 ${INPUT_DIR}/$INPUT_FILE1 -2 ${INPUT_DIR}/$INPUT_FILE2 -S ${OUT_DIR}/$OUTPUT_FILE
