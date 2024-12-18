@@ -8,10 +8,8 @@
 #SBATCH --mem=25G
 #SBATCH --partition=pibu_el8
 
-#save read- , intended output- and container directory as variables
+#save read- and intended output as variables
 READS_DIR=/data/courses/rnaseq_course/toxoplasma_de/reads
-
-CONTAINER=/containers/apptainer/fastp_0.23.2--h5f740d0_3.sif
 
 OUT_DIR=/data/users/${USER}/rna_seq/cleaned_fastp
 
@@ -19,6 +17,7 @@ OUT_DIR=/data/users/${USER}/rna_seq/cleaned_fastp
 cd /data/users/${USER}/rna_seq
 mkdir ${OUT_DIR}
 
+#initialize empty array to store file numbers
 numbers=()
 
 # Loop through the files and extract the numbers
@@ -37,6 +36,6 @@ done
 
 #looping over all files in 
 for number in "${numbers[@]}"; do
-#cleaning up using fastp
+#submit jobs to 02a
 sbatch 02a_run_fastp $number
 done
