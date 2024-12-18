@@ -15,6 +15,7 @@ CONTAINER=/containers/apptainer/fastp_0.23.2--h5f740d0_3.sif
 
 OUT_DIR=/data/users/${USER}/rna_seq/cleaned_fastp
 
+#read in File number from command line argument
 FILE_NUMBER=$1
 
 #move to project directory and create output directory
