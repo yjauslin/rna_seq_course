@@ -8,6 +8,7 @@
 #SBATCH --mem=1G
 #SBATCH --partition=pibu_el8
 
+#save important directories as variables
 INPUT_DIR=/data/users/${USER}/rna_seq/sorted_bam
 CONTAINER_DIR=/containers/apptainer/subread_2.0.1--hed695b0_0.sif
 
@@ -20,8 +21,11 @@ gunzip /data/users/${USER}/rna_seq/fastqc/Mus_musculus.GRCm39.113.gtf.gz
 #give permission to the input files
 chmod +wrx $INPUT_DIR/*.bam
 
+#run featureCounts
 apptainer exec --bind $INPUT_DIR $CONTAINER_DIR featureCounts -p -s 2 -a /data/users/${USER}/rna_seq/fastqc/Mus_musculus.GRCm39.113.gtf -o counts.txt $INPUT_DIR/*.bam
 
+#compress reference genome again
 gzip /data/users/${USER}/rna_seq/fastqc/Mus_musculus.GRCm39.113.gtf
 
+#cut the output of featureCounts, so it can be used for DESeq
 tail -n +2 counts.txt | cut --fields=1,7- > counts_filtered.txt
