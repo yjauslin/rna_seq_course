@@ -8,13 +8,16 @@
 #SBATCH --mem=4G
 #SBATCH --partition=pibu_el8
 
+#save important directories as variables
 INPUT_DIR=/data/users/${USER}/rna_seq/sorted_bam
 HISAT2_DIR=/containers/apptainer/hisat2_samtools_408dfd02f175cd88.sif
 OUTPUT_DIR=/data/users/${USER}/rna_seq/index_bam
 
+#move to project directory and create output directory
 cd /data/users/${USER}/rna_seq
 mkdir $OUTPUT_DIR
 
+#initialize array to store file numbers
 numbers=()
 
 # Loop through the files and extract the numbers
@@ -32,5 +35,6 @@ for file in /data/users/${USER}/rna_seq/fastqc/SRR*_*; do
 done
 
 for number in "${numbers[@]}"; do
+#submit every file number/every file to sorting 
 sbatch 10a_run_samtools_index ${number}_sorted.bam ${number}_indexed.bam.bai
 done
