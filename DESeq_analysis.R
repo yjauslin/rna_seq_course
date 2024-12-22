@@ -100,7 +100,7 @@ summary(res_lung)
 p_cutoff = 0.01
 
 #define cut-off for log2foldchange
-logfold_cutoff = 2
+logfold_cutoff = 1
 
 #count number of significant genes for blood
 sig_genes_blood <- sum(res_blood$padj < p_cutoff, na.rm = T)
@@ -130,7 +130,7 @@ print(downregulated_lung)
 
 
 #adjust plot visualization to fit two plots next to each other
-par(mfrow = c(1,2))
+par(mfrow = c(1,2), mar = c(3,3,2.7,2), cex = 0.85, cex.axis = 1.1, cex.lab = 1.1, cex.main = 1.2, cex.lab = 1.1)
 
 # Make a basic volcano plot representing every gene
 with(res_blood, plot(log2FoldChange, -log10(padj), pch=20, main="Blood: Control vs. Case", xlim=c(-10,15)))
@@ -143,7 +143,7 @@ with(subset(res_blood, padj<p_cutoff & log2FoldChange > logfold_cutoff), points(
 #calculate total genes on the plot
 total_genes <- length(rownames(res_blood))
 # Add the legend
-legend("topright", legend=c(paste0("total (", total_genes, " genes)"), paste0("downregulated (", downregulated_blood, " genes)"), paste0("upregulated (", upregulated_blood, " genes)"), paste0("significant (", sig_genes_blood, " genes)")), col=c("black", "blue", "red","orange"), pch=20)
+legend("topright", legend=c(paste0("total (", total_genes, " genes)"), paste0("downregulated (", downregulated_blood, " genes)"), paste0("upregulated (", upregulated_blood, " genes)"), paste0("padj < 0.01 (", sig_genes_blood, " genes)")), col=c("black", "blue", "red","orange"), pch=20, cex = 1.1)
 
 
 #do the same thing for comparison of lung
@@ -157,7 +157,7 @@ with(subset(res_lung, padj<p_cutoff & log2FoldChange < -logfold_cutoff), points(
 with(subset(res_lung, padj<p_cutoff & log2FoldChange > logfold_cutoff), points(log2FoldChange, -log10(padj), pch=20, col="red"))
 
 # Add the legend
-legend("topright", legend=c(paste0("total (", total_genes, " genes)"), paste0("downregulated (", downregulated_lung, " genes)"), paste0("upregulated (", upregulated_lung, " genes)"), paste0("significant (", sig_genes_lung, " genes)")), col=c("black", "blue", "red","orange"), pch=20)
+legend("topright", legend=c(paste0("total (", total_genes, " genes)"), paste0("downregulated (", downregulated_lung, " genes)"), paste0("upregulated (", upregulated_lung, " genes)"), paste0("padj < 0.01 (", sig_genes_lung, " genes)")), col=c("black", "blue", "red","orange"), pch=20, cex = 1.1)
 
 
 #adjust plot visualization to show multiple plots: 2 rows, 2 columns, adjust size of elements of the plot as well as margins for the plot (mar) and axis elements/labels (mgp)
