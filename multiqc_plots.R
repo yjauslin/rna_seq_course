@@ -53,6 +53,28 @@ featCounts_plot <- ggplot(df, mapping = aes(fill = fct_reorder(type, values), x 
         legend.title = element_blank()) +
   guides(fill = guide_legend(reverse = TRUE))
 
+#initialize total vector to store total number of reads
+total <- c()
+
+for(i in 1:16){
+  #calculate total number of reads for each sample and add to vector
+  total <- c(total, sum(featCounts[i,-1]))
+} 
+
+#add total number of reads to df
+df$total <- rep(total, each = 5)
+
+#calculate percentages
+df$percentages = df$values / df$total
+
+#calculate mean percentage of aligned reads
+mean_assigned = mean(df$percentages[df$type == "Assigned"]) * 100
+
+#calculate standard error of the mean percentage of aligned reads
+std_error = sd(df$percentages[df$type == "Assigned"]) / sqrt(length(df$percentages[df$type == "Assigned"])) * 100
+
+#-----------------------------------------------------------------------------------------------------------------------------------
+
 #read in summary statistics of mapping step
 mapping <- read.csv(file = paste0(project_path,"/bowtie2_pe_plot.csv"), header = T)
 
@@ -96,6 +118,34 @@ mapping_plot <- ggplot(mapping_df, mapping = aes(fill = fct_reorder(type, values
 
 #add featureCount and mapping plot together
 aplot::plot_list(mapping_plot, featCounts_plot, ncol = 1, tag_levels = "A")
+
+#initialize total vector to store total number of reads
+total <- c()
+
+for(i in 1:16){
+  #calculate total number of reads for each sample and add to vector
+  total <- c(total, sum(mapping[i,-1]))
+} 
+
+#add total number of reads to mapping
+mapping_df$total <- rep(total, each = 6)
+
+#calculate percentages
+mapping_df$percentages <- mapping_df$values / mapping_df$total
+
+overall_alignment <- rep(1, 16) - mapping_df$percentages[mapping_df$type == "PE.neither.mate.aligned"]
+
+#calculate mean percentage of overall aligned reads
+mean_overall_assigned <- mean(overall_alignment) * 100
+
+#calculate standard error of the mean percentage of overall aligned reads
+std_error <- sd(overall_alignment) / sqrt(length(overall_alignment)) * 100
+
+#calculate mean percentage of concordantly aligned reads
+mean_assigned_concordantly <- mean(mapping_df$percentages[which(mapping_df$type == "PE.mapped.uniquely")]) * 100
+
+#calculate standard error of the mean percentage of overall aligned reads
+std_error_concordantly <- sd(mapping_df$percentages[which(mapping_df$type == "PE.mapped.uniquely")])/sqrt(length(mapping_df$percentages[which(mapping_df$type == "PE.mapped.uniquely")])) * 100
 
 #read in summary statistics of fastqc
 fastqc <- read.csv(file = paste0(project_path,"/fastqc_per_base_sequence_quality_plot.csv"), header = T)
