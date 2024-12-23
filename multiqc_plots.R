@@ -147,6 +147,8 @@ mean_assigned_concordantly <- mean(mapping_df$percentages[which(mapping_df$type 
 #calculate standard error of the mean percentage of overall aligned reads
 std_error_concordantly <- sd(mapping_df$percentages[which(mapping_df$type == "PE.mapped.uniquely")])/sqrt(length(mapping_df$percentages[which(mapping_df$type == "PE.mapped.uniquely")])) * 100
 
+#-----------------------------------------------------------------------------------------------------------------------------------
+
 #read in summary statistics of fastqc
 fastqc <- read.csv(file = paste0(project_path,"/fastqc_per_base_sequence_quality_plot.csv"), header = T)
 
