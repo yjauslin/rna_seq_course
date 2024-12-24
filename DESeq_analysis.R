@@ -130,10 +130,10 @@ print(downregulated_lung)
 
 
 #adjust plot visualization to fit two plots next to each other
-par(mfrow = c(1,2), mar = c(3,3,2.7,2), cex = 0.85, cex.axis = 1.1, cex.lab = 1.1, cex.main = 1.2, cex.lab = 1.1)
+par(mfrow = c(1,2), mar = c(4,4,3,2), cex = 0.9, cex.axis = 1.1, cex.lab = 1.1, cex.main = 1.2, cex.lab = 1.1)
 
 # Make a basic volcano plot representing every gene
-with(res_blood, plot(log2FoldChange, -log10(padj), pch=20, main="Blood: Control vs. Case", xlim=c(-10,15)))
+with(res_blood, plot(log2FoldChange, -log10(padj), pch=20, main="Blood: Control vs. Case", xlim=c(-10,15), ylim = c(0, 450)))
 
 # Add colored points for significant genes in blood comparison (padj < p_cutoff(=0.01): blue if logfoldchange<logfold_cutoff(=2), red if logfoldchange>logfold_cutoff(=2))
 with(subset(res_blood, padj<p_cutoff), points(log2FoldChange, -log10(padj), pch=20, col="orange"))
@@ -149,7 +149,7 @@ legend("topright", legend=c(paste0("total (", total_genes, " genes)"), paste0("d
 #do the same thing for comparison of lung
 
 # Make a basic volcano plot representing every gene
-with(res_lung, plot(log2FoldChange, -log10(padj), pch=20, main="Lung: Control vs. Case", xlim=c(-10,15)))
+with(res_lung, plot(log2FoldChange, -log10(padj), pch=20, main="Lung: Control vs. Case", xlim=c(-10,15), ylim = c(0, 450)))
 
 # Add colored points for significant genes in lung comparison (padj < p_cutoff(=0.01): blue if logfoldchange<logfold_cutoff(=2), red if logfoldchange>logfold_cutoff(=2))
 with(subset(res_lung, padj<p_cutoff), points(log2FoldChange, -log10(padj), pch=20, col="orange"))
@@ -161,7 +161,7 @@ legend("topright", legend=c(paste0("total (", total_genes, " genes)"), paste0("d
 
 
 #adjust plot visualization to show multiple plots: 2 rows, 2 columns, adjust size of elements of the plot as well as margins for the plot (mar) and axis elements/labels (mgp)
-par(mfrow = c(2,2), mar = c(3,2.7,2.7,2), cex.axis = 0.65, cex.lab = 0.7, cex.main = 0.7, cex = 1.5, mgp = c(2, 0.5, 0))
+par(mfrow = c(2,2), mar = c(4,3,3,2), cex.axis = 0.65, cex.lab = 0.7, cex.main = 0.7, cex = 1.5, mgp = c(2, 0.5, 0))
 
 #plot differential expression of some of the genes mentioned in initial publication
 
