@@ -14,9 +14,12 @@ INPUT_DIR=/data/users/${USER}/rna_seq/sam_files
 HISAT2_DIR=/containers/apptainer/hisat2_samtools_408dfd02f175cd88.sif
 OUTPUT_DIR=/data/users/${USER}/rna_seq/bam_files
 
+#move to project directory, create output directory and enter it
+cd /data/users/${USER}/rna_seq
 mkdir $OUTPUT_DIR
 cd /data/users/${USER}/rna_seq/sam_files
 
+#initialize array that stores file numbers
 numbers=()
 
 # Loop through the files and extract the numbers
@@ -33,4 +36,5 @@ for file in /data/users/${USER}/rna_seq/fastqc/SRR*_*; do
   fi
 done
 
+#convert .sam files to .bam files
 apptainer exec --bind $INPUT_DIR $HISAT2_DIR samtools view -hbS $INPUT_DIR/${numbers[$SLURM_ARRAY_TASK_ID]}.sam > ${OUTPUT_DIR}/${numbers[$SLURM_ARRAY_TASK_ID]}.bam
