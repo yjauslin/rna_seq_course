@@ -1,14 +1,13 @@
 #!/bin/bash
 
-#SBATCH --mail-type=fail
+#SBATCH --mail-type=end,fail
 #SBATCH --job-name="fast_qc"
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=8
-#SBATCH --time=02:00:00
+#SBATCH --time=04:00:00
 #SBATCH --mem=8G
 #SBATCH --partition=pibu_el8
 
-#store reads-, container- and project directory as variables
 READS_DIR=/data/users/${USER}/rna_seq/cleaned_fastp
 CONTAINER=/containers/apptainer/fastqc-0.12.1.sif
 PROJECT_DIR=/data/users/${USER}/rna_seq
@@ -27,4 +26,4 @@ fastqc \
 module add MultiQC/1.11-foss-2021a
 
 #run multiqc
-multiqc $PROJECT_DIR/cleaned_fastqc -o $PROJECT_DIR/cleaned_fastqc
+multiqc -f $PROJECT_DIR/cleaned_fastqc -o $PROJECT_DIR/cleaned_fastqc

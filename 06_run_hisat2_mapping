@@ -1,0 +1,41 @@
+#!/bin/bash
+
+#SBATCH --mail-type=end,fail
+#SBATCH --job-name="mapping"
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=4
+#SBATCH --time=4:00:00
+#SBATCH --mem=8G
+#SBATCH --partition=pibu_el8
+#SBATCH --array=0-15
+#SBATCH --output=/data/users/yjauslin/rna_seq/mapping.out
+
+#save important directories as variables
+INPUT_DIR=/data/users/${USER}/rna_seq/cleaned_fastp
+HISAT2_DIR=/containers/apptainer/hisat2_samtools_408dfd02f175cd88.sif
+REF_GENOME=/data/users/${USER}/rna_seq/fastqc
+OUT_DIR=/data/users/${USER}/rna_seq/sam_files
+
+#move to project directory and create output directory
+cd /data/users/${USER}/rna_seq
+mkdir ${OUT_DIR}
+
+#initialize array to store number of the samples in order to create neat output-file names
+numbers=()
+
+# Loop through the files and extract the numbers
+for file in ${INPUT_DIR}/SRR*_*; do
+  # Extract the filename without the path
+  filename=$(basename "$file")
+  # Extract the number using bash string manipulation
+  number=${filename#SRR}   # Remove 'SRR' prefix
+  number=${number%%_*}     # Remove everything after the first '_'
+
+  # Check if the number is already in the unique_numbers array
+  if [[ ! " ${numbers[@]} " =~ " ${number} " ]]; then
+    numbers+=("$number")  # Add only if it's not already in the array
+  fi
+done
+
+#map the reads to the reference genome
+apptainer exec --bind $INPUT_DIR $HISAT2_DIR hisat2 --rna-strandness RF -x ${REF_GENOME}/ref_genome_index -1 $INPUT_DIR/SRR${numbers[$SLURM_ARRAY_TASK_ID]}_1_cleaned.fastq.gz -2 $INPUT_DIR/SRR${numbers[$SLURM_ARRAY_TASK_ID]}_2_cleaned.fastq.gz -S ${OUT_DIR}/${numbers[$SLURM_ARRAY_TASK_ID]}.sam

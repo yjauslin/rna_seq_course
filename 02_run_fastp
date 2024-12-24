@@ -1,0 +1,42 @@
+#!/bin/bash
+
+#SBATCH --mail-type=end,fail
+#SBATCH --job-name="fastp"
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=8
+#SBATCH --time=1:00:00
+#SBATCH --mem=25G
+#SBATCH --partition=pibu_el8
+#SBATCH --array=0-15
+#SBATCH --output=/data/users/yjauslin/rna_seq/fastp.out
+
+#save read- , intended output- and container directory as variables
+READS_DIR=/data/courses/rnaseq_course/toxoplasma_de/reads
+
+CONTAINER=/containers/apptainer/fastp_0.23.2--h5f740d0_3.sif
+
+OUT_DIR=/data/users/${USER}/rna_seq/cleaned_fastp
+
+#move to project directory and create output directory
+cd /data/users/${USER}/rna_seq
+mkdir ${OUT_DIR}
+
+#initialize array to store number of the samples in order to create neat output-file names
+numbers=()
+
+# Loop through the files and extract the numbers
+for file in ${READS_DIR}/SRR*_*; do
+  # Extract the filename without the path
+  filename=$(basename "$file")
+  # Extract the number using bash string manipulation
+  number=${filename#SRR}   # Remove 'SRR' prefix
+  number=${number%%_*}     # Remove everything after the first '_'
+
+  # Check if the number is already in the unique_numbers array
+  if [[ ! " ${numbers[@]} " =~ " ${number} " ]]; then
+    numbers+=("$number")  # Add only if it's not already in the array
+  fi
+done
+
+#cleaning up using fastp
+apptainer exec --bind ${READS_DIR} ${CONTAINER} fastp -D -p -g -x -i $READS_DIR/SRR${numbers[$SLURM_ARRAY_TASK_ID]}_1.fastq.gz -I $READS_DIR/SRR${numbers[$SLURM_ARRAY_TASK_ID]}_2.fastq.gz  -o ${OUT_DIR}/SRR${numbers[$SLURM_ARRAY_TASK_ID]}_1_cleaned.fastq.gz -O ${OUT_DIR}/SRR${numbers[$SLURM_ARRAY_TASK_ID]}_2_cleaned.fastq.gz

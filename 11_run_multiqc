@@ -8,14 +8,11 @@
 #SBATCH --mem=1G
 #SBATCH --partition=pibu_el8
 
-#save project directory as variable
 PROJECT_DIR=/data/users/${USER}/rna_seq
 
-#add multiqc module
 module add MultiQC/1.11-foss-2021a
 
-#move to project directory
 cd $PROJECT_DIR
 
-#run multiqc, overwrite existing output 
-multiqc $PROJECT_DIR -o $PROJECT_DIR -f/--force
+#run multiqc
+multiqc -f $PROJECT_DIR -o $PROJECT_DIR 

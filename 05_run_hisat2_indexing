@@ -8,15 +8,11 @@
 #SBATCH --mem=8G
 #SBATCH --partition=pibu_el8
 
-#save input and container directories as variables
 INPUT_DIR=/data/users/${USER}/rna_seq/fastqc
 HISAT2_DIR=/containers/apptainer/hisat2_samtools_408dfd02f175cd88.sif
 
-#move to input directory
 cd ${INPUT_DIR}
 
-#decompress the genome to allow for indexing
 gunzip Mus_musculus.GRCm39.dna.primary_assembly.fa.gz
 
-#index the reference genome
 apptainer exec --bind $INPUT_DIR $HISAT2_DIR hisat2-build Mus_musculus.GRCm39.dna.primary_assembly.fa ref_genome_index

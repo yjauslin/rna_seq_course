@@ -29,5 +29,5 @@ fastqc \
 module add MultiQC/1.11-foss-2021a
 
 #run multiqc
-multiqc $PROJECT_DIR/fastqc -o $PROJECT_DIR/fastqc
+multiqc -f $PROJECT_DIR/fastqc -o $PROJECT_DIR/fastqc
 
