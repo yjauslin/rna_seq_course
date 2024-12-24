@@ -8,6 +8,7 @@
 #SBATCH --mem=8G
 #SBATCH --partition=pibu_el8
 
+#save important directories as variables
 READS_DIR=/data/users/${USER}/rna_seq/cleaned_fastp
 CONTAINER=/containers/apptainer/fastqc-0.12.1.sif
 PROJECT_DIR=/data/users/${USER}/rna_seq
