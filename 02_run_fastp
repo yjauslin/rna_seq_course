@@ -32,11 +32,11 @@ for file in ${READS_DIR}/SRR*_*; do
   number=${filename#SRR}   # Remove 'SRR' prefix
   number=${number%%_*}     # Remove everything after the first '_'
 
-  # Check if the number is already in the unique_numbers array
+  # Check if the number is already in the numbers array
   if [[ ! " ${numbers[@]} " =~ " ${number} " ]]; then
     numbers+=("$number")  # Add only if it's not already in the array
   fi
 done
 
-#cleaning up using fastp
+#cleaning up using fastp, -D = deduplication, -p = indicates paired-end data, -g = force poly-g-tail trimming, -x force poly-x-tail-trimming in 3' ends
 apptainer exec --bind ${READS_DIR} ${CONTAINER} fastp -D -p -g -x -i $READS_DIR/SRR${numbers[$SLURM_ARRAY_TASK_ID]}_1.fastq.gz -I $READS_DIR/SRR${numbers[$SLURM_ARRAY_TASK_ID]}_2.fastq.gz  -o ${OUT_DIR}/SRR${numbers[$SLURM_ARRAY_TASK_ID]}_1_cleaned.fastq.gz -O ${OUT_DIR}/SRR${numbers[$SLURM_ARRAY_TASK_ID]}_2_cleaned.fastq.gz
