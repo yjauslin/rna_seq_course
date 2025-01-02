@@ -31,11 +31,11 @@ for file in ${INPUT_DIR}/SRR*_*; do
   number=${filename#SRR}   # Remove 'SRR' prefix
   number=${number%%_*}     # Remove everything after the first '_'
 
-  # Check if the number is already in the unique_numbers array
+  # Check if the number is already in the numbers array
   if [[ ! " ${numbers[@]} " =~ " ${number} " ]]; then
     numbers+=("$number")  # Add only if it's not already in the array
   fi
 done
 
-#map the reads to the reference genome
+#map the reads to the reference genome, --rna-strandness specifies strandness, here RF = reverse, forward
 apptainer exec --bind $INPUT_DIR $HISAT2_DIR hisat2 --rna-strandness RF -x ${REF_GENOME}/ref_genome_index -1 $INPUT_DIR/SRR${numbers[$SLURM_ARRAY_TASK_ID]}_1_cleaned.fastq.gz -2 $INPUT_DIR/SRR${numbers[$SLURM_ARRAY_TASK_ID]}_2_cleaned.fastq.gz -S ${OUT_DIR}/${numbers[$SLURM_ARRAY_TASK_ID]}.sam
