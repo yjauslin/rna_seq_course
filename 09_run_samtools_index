@@ -30,11 +30,11 @@ for file in /data/users/${USER}/rna_seq/fastqc/SRR*_*; do
   number=${filename#SRR}   # Remove 'SRR' prefix
   number=${number%%_*}     # Remove everything after the first '_'
 
-  # Check if the number is already in the unique_numbers array
+  # Check if the number is already in the numbers array
   if [[ ! " ${numbers[@]} " =~ " ${number} " ]]; then
     numbers+=("$number")  # Add only if it's not already in the array
   fi
 done
 
-#index sorted bam file
+#index sorted bam file, -o = output file
 apptainer exec --bind $INPUT_DIR $HISAT2_DIR samtools index -o ${OUTPUT_DIR}/${numbers[$SLURM_ARRAY_TASK_ID]} ${INPUT_DIR}/${numbers[$SLURM_ARRAY_TASK_ID]}_sorted.bam
