@@ -3,6 +3,7 @@ library("ggplot2")
 library("clusterProfiler")
 library("org.Mm.eg.db")
 library("enrichplot")
+library(gridExtra)
 
 #adjust to preferred project directory
 project_path <- "C:/Users/yanni/OneDrive - Universitaet Bern/Master"
@@ -219,8 +220,7 @@ ego_lung <- enrichGO(gene           = genes_lung, #list of genes to be analyzed
 
 
 #create barplots for overrepresentation analysis
-barplot(ego_blood, showCategory=20) + ggtitle("Blood: Control vs. Case") + theme(text = element_text(size = 16))
-barplot(ego_lung, showCategory=20) + ggtitle("Lung: Control vs. Case") + theme(text = element_text(size = 16))
+blood_plot <- barplot(ego_blood, showCategory=10) + ggtitle("Blood: Control vs. Case") + theme(text = element_text(size = 16))
+lung_plot <- barplot(ego_lung, showCategory=10) + ggtitle("Lung: Control vs. Case") + theme(text = element_text(size = 16))
 
-
-                 
+aplot::plot_list(blood_plot, lung_plot, ncol = 1)
