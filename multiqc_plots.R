@@ -2,6 +2,7 @@ library("ggplot2")
 library(stringr)
 library(forcats)
 library(gridExtra)
+library(dplyr)
 
 #adjust to preferred project directory
 project_path <- "C:/Users/yanni/OneDrive - Universitaet Bern/Master"
@@ -66,13 +67,19 @@ for(i in 1:16){
 df$total <- rep(total, each = 5)
 
 #calculate percentages
-df$percentages = df$values / df$total
+df$percentages <- df$values / df$total
 
 #calculate mean percentage of aligned reads
-mean_assigned = mean(df$percentages[df$type == "Assigned"]) * 100
+mean_assigned <- mean(df$percentages[df$type == "Assigned"]) * 100
 
 #calculate standard error of the mean percentage of aligned reads
-std_error = sd(df$percentages[df$type == "Assigned"]) / sqrt(length(df$percentages[df$type == "Assigned"])) * 100
+std_error <- sd(df$percentages[df$type == "Assigned"]) / sqrt(length(df$percentages[df$type == "Assigned"])) * 100
+
+#calculate mean percentage of ambiguous reads
+mean_ambiguity <- mean(df$percentages[df$type == "Unassigned..Ambiguity"]) * 100
+
+#calculate standard error of the mean percentage of ambiguous reads
+std_error_ambiguity <- sd(df$percentages[df$type == "Unassigned..Ambiguity"]) / sqrt(length(df$percentages[df$type == "Unassigned..Ambiguity"])) * 100
 
 #-----------------------------------------------------------------------------------------------------------------------------------
 
@@ -190,6 +197,10 @@ for (i in 1:number_of_samples) {
 
 #add phred_score values to dataframe
 fastqc_df$phred_score <- values
+
+#order time_points, so that before appears to the left of after in the plot
+fastqc_df <- fastqc_df %>%
+  mutate(time_point = factor(time_point, levels = c("before", "after")))
 
 #create ggplot
 fastqc_plot <- ggplot(fastqc_df, mapping = aes(x = position, y = phred_score))+
