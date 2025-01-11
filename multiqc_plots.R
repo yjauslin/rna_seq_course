@@ -1,6 +1,7 @@
 library("ggplot2")
 library(stringr)
 library(forcats)
+library(gridExtra)
 
 #adjust to preferred project directory
 project_path <- "C:/Users/yanni/OneDrive - Universitaet Bern/Master"
@@ -14,7 +15,7 @@ featCounts <- read.csv(file = paste0(project_path,"/featureCounts_assignment_plo
 #extract sample numbers and add SRR as a prefix to sample IDs
 featCounts$Category <- paste0("SRR",str_extract_all(featCounts$Category, "\\d+"))
 
-#create new dataframe to make it easier to plot
+#create new dataframe to make it easier to plot, each sample will have 5 entries --> 5*16=80
 df <- data.frame(Category = rep(NA, 80))
 
 #add sample ids to df each repeated 5 times
@@ -41,15 +42,15 @@ df$values <- values
 
 #create stacked percentage barplot for featCounts
 featCounts_plot <- ggplot(df, mapping = aes(fill = fct_reorder(type, values), x = values, y = Category)) +
-  geom_bar(position = "fill", stat = "identity") +
-  scale_fill_viridis_d(option = "plasma", direction = -1) +
-  theme_bw() +
-  labs(x = "Percentages") +
-  theme(axis.title.x = element_text(size = 16),
+  geom_bar(position = "fill", stat = "identity") + #add barplot
+  scale_fill_viridis_d(option = "plasma", direction = -1) + #set color palette
+  theme_bw() + #adjust theme
+  labs(x = "Percentages") + #rename x-axis
+  theme(axis.title.x = element_text(size = 16), #adjust size of axes-titles and ticks, remove redundant y-axis-label and legend-title
         axis.title.y = element_blank(),
         axis.text.x = element_text(size = 14),
         axis.text.y = element_text(size = 14),
-        legend.text = element_text(size = 14),
+        legend.text = element_text(size = 13),
         legend.title = element_blank()) +
   guides(fill = guide_legend(reverse = TRUE))
 
@@ -81,10 +82,13 @@ mapping <- read.csv(file = paste0(project_path,"/bowtie2_pe_plot.csv"), header =
 #remove redundant last row
 mapping <- mapping[-17,]
 
+#create empty data frame to fit data, each sample will have 6 different mapping types --> 6*16=96
 mapping_df <- data.frame(Category = rep(NA, 96))
 
+#extract sample id
 mapping_df$Category <- rep(paste0("SRR",78219,str_extract_all(mapping$Category, "\\d+")), each = 6)
 
+#extract the mapping types
 mapping_df$type <- rep(colnames(mapping[-1]), by = 16)
 
 #extract all numerical values from the mapping data frame
@@ -104,20 +108,17 @@ mapping_df$values <- values
 
 #create stacked percentage barplot for mapping
 mapping_plot <- ggplot(mapping_df, mapping = aes(fill = fct_reorder(type, values), x = values, y = Category)) +
-  geom_bar(position = "fill", stat = "identity") +
-  scale_fill_viridis_d(option = "plasma", direction = -1) +
-  theme_bw() +
-  labs(x = "Percentages") +
-  theme(axis.title.x = element_text(size = 16),
+  geom_bar(position = "fill", stat = "identity") + #create barplot
+  scale_fill_viridis_d(option = "plasma", direction = -1) + #set color palette
+  theme_bw() + #adjust theme
+  labs(x = "Percentages") + #adjust x-axis-label
+  theme(axis.title.x = element_text(size = 16), #adjust size off axis titles and ticks, remove redundant legend title and y-axis-title
         axis.title.y = element_blank(),
         axis.text.x = element_text(size = 14),
         axis.text.y = element_text(size = 14),
-        legend.text = element_text(size = 14),
+        legend.text = element_text(size = 13),
         legend.title = element_blank()) +
-  guides(fill = guide_legend(reverse = TRUE))
-
-#add featureCount and mapping plot together
-aplot::plot_list(mapping_plot, featCounts_plot, ncol = 1, tag_levels = "A")
+  guides(fill = guide_legend(reverse = TRUE)) #adjust legend to show filled squares
 
 #initialize total vector to store total number of reads
 total <- c()
@@ -152,44 +153,66 @@ std_error_concordantly <- sd(mapping_df$percentages[which(mapping_df$type == "PE
 #read in summary statistics of fastqc
 fastqc <- read.csv(file = paste0(project_path,"/fastqc_per_base_sequence_quality_plot.csv"), header = T)
 
-#adjust plot visualization to show to plots per row, make plots bigger with cex
-par(mfrow = c(1,2), cex = 1.3)
+#number of samples: 4*normal because two time points (before cleaning and after cleaning) and two mates.
+number_of_samples <- 16*4
 
-#initialize x-axis
-x = fastqc$Position..bp.
-#initialize plot by plotting first sample
-plot(x, y = fastqc$SRR7821918_1, type = 'l', col = "firebrick", xlim = c(1, max(fastqc$Position..bp.)), ylim = c(0, 50), xlab = "Position (bp)", ylab = "Phred Score", main = "Before cleaning")
+#create empty data frame to fit reformatted data
+fastqc_df <- data.frame(sample_id = rep(NA,length(fastqc$Position..bp.)*number_of_samples)) 
 
-#iterate column wise through fastqc dataframe, save column name, if its uncleaned mate 1 make a red line on the plot, if uncleaned mate 2 make blue line
-#if not corresponding to uncleaned samples, do nothing
-for(i in 3:length(colnames(fastqc))){
-  col_name = colnames(fastqc)[i]
-  if (grepl("_1$", col_name)) {
-    lines(x, y = fastqc[,i], col = "firebrick")
-  } else if (grepl("_2$", col_name))  {
-    lines(x, y = fastqc[,i], col = "dodgerblue")
-  } else{}
-}
-#add black lines corresponding to quality thresholds
-abline(h = c(28, 20), col = "black", lty = 2)
-#add figure legend
-legend("bottomright", legend = c("Mate 1", "Mate 2"), col = c("firebrick", "dodgerblue"), lty = c(1,1), cex = 0.9)
+#extract sample_id from original data frame, remove information to be stored in other columns
+fastqc_df$sample_id <- rep(sub("_.*", "", colnames(fastqc)[-1]), each = length(fastqc$Position..bp.))
 
-#initialize second plot for cleaned reads
-plot(x, y = fastqc$SRR7821918_1_cleaned, type = 'l', col = "firebrick", xlim = c(1, max(fastqc$Position..bp.)), ylim = c(0, 50), xlab = "Position (bp)", ylab = "Phred Score", main = "After cleaning")
+#extract position from original data frame
+fastqc_df$position <- rep(fastqc$Position..bp.,number_of_samples)
 
-#iterate column wise through fastqc dataframe, save column name, if its cleaned mate 1 make a red line on the plot, if cleaned mate 2 make blue line
-#if not corresponding to cleaned samples, do nothing
-for(i in 3:length(colnames(fastqc))){
-  col_name = colnames(fastqc)[i]
-if (grepl("_1_cleaned$", col_name)) {
-  lines(x, y = fastqc[,i], col = "firebrick")
-} else if(grepl("_2_cleaned$", col_name)) {
-  lines(x, y = fastqc[,i], col = "dodgerblue")
-} else{}
+#extract before cleaning, after cleaning information from the sample names from original dataframe
+fastqc_df$time_point <- rep(sapply(colnames(fastqc)[-1], function(x){if(grepl(x, pattern = "_cleaned")){x <- "after"}else{x <- "before"}}), each = length(fastqc$Position..bp.))
+#convert time information to factor
+fastqc_df$time_point <- as.factor(fastqc_df$time_point)
+
+#extract mate information from original data frame
+fastqc_df$mate <- rep(sapply(colnames(fastqc)[-1], function(x){if(grepl(x, pattern = "_1")){x <- 1}else{x <- 2}}), each = length(fastqc$Position..bp.))
+#convert mate column to factor
+fastqc_df$mate <- as.factor(fastqc_df$mate)
+
+#extract all numerical values from the fastqc data frame
+numerical_values <- apply(fastqc[,2:(number_of_samples+1)], 1, function(column) {
+  as.numeric(column[!is.na(column)])  # Convert to numeric and remove NA values
+})
+
+#create empty vector to be filled in the for loop
+values <- numeric()
+
+#extract column from the numerical values vector and add it to values
+for (i in 1:number_of_samples) {
+  values <- c(values, numerical_values[i,])
 }
 
-#add black lines corresponding to quality thresholds
-abline(h = c(28, 20), col = "black", lty = 2)
-#add figure legend
-legend("bottomright", legend = c("Mate 1", "Mate 2"), col = c("firebrick", "dodgerblue"), lty = c(1,1), cex = 0.9)
+#add phred_score values to dataframe
+fastqc_df$phred_score <- values
+
+#create ggplot
+fastqc_plot <- ggplot(fastqc_df, mapping = aes(x = position, y = phred_score))+
+  geom_point(aes(color = mate))+  #add data points
+  facet_wrap(~ time_point)+   #separate by time, creates two plots one before- and one after cleaning of the reads
+  scale_color_manual(values = c("#0072B2", "#D95F02"))+ #define nice colors for the data
+  geom_smooth(se = F, aes(color = mate))+ #add trendlines of the data
+  geom_abline(slope = 0, intercept = 28, linetype = 'dashed')+ #add quality thresholds from multiqc as black dashed lines
+  geom_abline(slope = 0, intercept = 20, linetype = 'dashed')+
+  theme_bw()+ #adjust theme of the plot
+  theme(strip.text = element_text(size = 16),  #increase text size of text appearing on the plot
+        axis.title.x = element_text(size = 16),
+        axis.title.y = element_text(size = 16),
+        axis.text.x = element_text(size = 14),
+        axis.text.y = element_text(size = 14),
+        legend.text = element_text(size = 14),
+        legend.title = element_text(size = 14))+
+  scale_y_continuous(limits = c(0,45), breaks = seq(0,45, by = 10))+ #adjust axes and axes-ticks
+  scale_x_continuous(breaks = seq(0,76, by = 10))+
+  ylab('Phred Score')+ #rename axes
+  xlab('Position (bp)')+
+  labs(color = 'Mate') #rename legend title
+
+#arrange all three created plots into one, fastqc plot should fill out first row
+grid.arrange(fastqc_plot, mapping_plot, featCounts_plot, nrow = 2, 
+             layout_matrix = rbind(c(1, 1), c(2, 3)))
